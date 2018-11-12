@@ -1,0 +1,22 @@
+#!/bin/bash
+DIR=$(readlink -f $(dirname $0))
+
+DOCKER_IMAGE=gnome-shell/extension-build-env
+
+docker build -t ${DOCKER_IMAGE} ${DIR}
+
+LOCAL_OUTPUT_DIR=${HOME}/.local/share/gnome-shell/extensions/mediaplayer@patapon.info
+
+mkdir -p ${LOCAL_OUTPUT_DIR}
+mkdir -p ${HOME}/.local/share/locale
+
+docker run --rm \
+	-e HOME=${HOME} \
+	--user=$(id -u):$(id -g) \
+	-v ${DIR}/..:/app \
+	-v ${LOCAL_OUTPUT_DIR}:${LOCAL_OUTPUT_DIR} \
+	-v ${HOME}/.local/share/locale:${HOME}/.local/share/locale \
+	-w /app \
+	-it ${DOCKER_IMAGE} \
+	/app/build
+
